@@ -19,11 +19,18 @@ export type FakeClock = Clock & {
 local Clock = {}
 
 function Clock.system(): Clock
+	-- OJO: en Roblox os.clock() mide tiempo de CPU, no de pared (un servidor ocioso casi no lo
+	-- avanza). `time()` son los segundos reales desde que arrancó la instancia. Fuera de Roblox
+	-- (herramientas, Lune) se cae en os.clock.
+	local mono: () -> number = os.clock
+	if typeof(time) == "function" then
+		mono = time
+	end
 	return {
 		unix = function()
 			return os.time()
 		end,
-		mono = os.clock,
+		mono = mono,
 	}
 end
 

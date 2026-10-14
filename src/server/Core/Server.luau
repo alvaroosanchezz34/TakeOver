@@ -554,6 +554,11 @@ function Server._save(self: any, session: SessionT, release: boolean): Result.Re
 	return r
 end
 
+-- Guardado inmediato de un jugador (p. ej. antes de confirmar una compra con Robux).
+function Server.save(self: any, session: SessionT, release: boolean?): Result.Result<nil>
+	return self:_save(session, release == true)
+end
+
 -- Guarda ya (en un hilo aparte) a las partes de una operación importante.
 function Server.saveSoon(self: any, sessions: { SessionT })
 	for _, s in sessions do

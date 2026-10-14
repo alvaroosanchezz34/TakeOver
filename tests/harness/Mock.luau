@@ -39,15 +39,14 @@ function RandomClass:NextInteger(min, max)
 	return min + math.floor(self:_next() * (max - min + 1))
 end
 
+local MockInstance = require("./MockInstance")
+
 function Mock.globals()
 	local env = {
 		Random = RandomClass,
 	}
-	local ok, MockInstance = pcall(require, "./MockInstance")
-	if ok and MockInstance then
-		for k, v in MockInstance.globals() do
-			env[k] = v
-		end
+	for k, v in MockInstance.globals() do
+		env[k] = v
 	end
 	return env
 end

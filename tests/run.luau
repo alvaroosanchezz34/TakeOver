@@ -3,7 +3,7 @@
 	Ejecuta toda la suite:
 
 	    lune run tests/run                 # todo
-	    lune run tests/run -- Ownership    # sólo tests cuyo nombre contenga "Ownership"
+	    lune run tests/run Ownership       # sólo tests cuyo nombre contenga "Ownership"
 
 	Cada fichero tests/spec/*.spec.luau devuelve function(t, load) donde
 	  t    = API de pruebas (describe/test/expect)

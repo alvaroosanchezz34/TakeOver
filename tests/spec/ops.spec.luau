@@ -187,6 +187,21 @@ return function(t, load)
 			t:expect(d:strikes(2)):toBe(0)
 		end)
 
+		t:test(
+			"payloads malformados repetidos también expulsan (y se rechazan sin ejecutar el handler)",
+			function()
+				local d, clock, calls, abuse = setup()
+				for _ = 1, Limits.MaxStrikes do
+					local r = d:dispatch(1, "Echo", { n = "no soy un número" })
+					t:expect(r.code):toBe("BAD_REQUEST")
+					clock:advance(0.3)
+				end
+				t:expect(#abuse):toBe(1)
+				t:expect(abuse[1].reason):toContain("payload")
+				t:expect(#calls):toBe(0)
+			end
+		)
+
 		t:test("los strikes caducan: errores aislados espaciados no expulsan", function()
 			local d, clock, _, abuse = setup()
 			for _ = 1, Limits.MaxStrikes * 3 do

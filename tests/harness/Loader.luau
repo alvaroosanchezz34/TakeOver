@@ -193,6 +193,8 @@ function Loader.new(options)
 		baseEnv[k] = v
 	end
 	self._baseEnv = baseEnv
+	-- Los specs se cargan con el require de Lune (sin este entorno): exponemos lo útil.
+	self.Random = baseEnv.Random
 
 	-- game:GetService() devuelve primero los servicios simulados inyectados.
 	local rawGetService = methods.GetService

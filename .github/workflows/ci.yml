@@ -1,0 +1,48 @@
+# Integración continua: formato, build de Rojo, tipos y tests; y la comprobación por mutación.
+# NOTA: este workflow no se ha podido ejecutar en el entorno donde se escribió (sin acceso a Actions).
+# Primera ejecución real = primer push; si falla por la instalación de herramientas, revisa tools/setup.sh.
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Caché de herramientas (rojo, lune, stylua, selene, luau-lsp)
+        uses: actions/cache@v4
+        with:
+          path: .tools
+          key: tools-${{ runner.os }}-${{ hashFiles('tools/setup.sh', 'rokit.toml') }}
+
+      - name: Instalar herramientas
+        run: tools/setup.sh
+
+      - name: Formato, build, tipos y tests
+        run: tools/check.sh
+
+  mutation:
+    needs: check
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Caché de herramientas
+        uses: actions/cache@v4
+        with:
+          path: .tools
+          key: tools-${{ runner.os }}-${{ hashFiles('tools/setup.sh', 'rokit.toml') }}
+
+      - name: Instalar herramientas
+        run: tools/setup.sh
+
+      - name: Comprobación por mutación (las salvaguardas rotas deben hacer fallar los tests)
+        run: |
+          export PATH="$PWD/.tools/bin:$PATH"
+          python3 tools/mutation_check.py

@@ -138,6 +138,32 @@ function Ledger.debit(
 end
 
 --[[
+	Reversión exacta: restablece saldo y estadísticas a una instantánea tomada ANTES de una
+	operación compuesta que ha fallado a medias. Notifica el ajuste (razón "rollback") para
+	que la interfaz y la analítica vean el estado real.
+]]
+function Ledger.restore(self: Ledger, session: Session, cash: number, stats: { [string]: number })
+	local current = Money.sanitize(session.data.cash)
+	session.data.cash = Money.sanitize(cash)
+	for k in session.data.stats do
+		if stats[k] == nil then
+			session.data.stats[k] = nil
+		end
+	end
+	for k, v in stats do
+		session.data.stats[k] = v
+	end
+	self._touch(session)
+	self:_notify({
+		session = session,
+		delta = session.data.cash - current,
+		reason = "rollback",
+		balance = session.data.cash,
+		meta = nil,
+	})
+end
+
+--[[
 	Mueve `amount` de `from` a `to` como una unidad. Si el crédito no pudiera aplicarse
 	se devuelve el dinero al origen. `burn` es la parte que se destruye (impuestos): sale
 	del débito pero no se acredita a nadie.

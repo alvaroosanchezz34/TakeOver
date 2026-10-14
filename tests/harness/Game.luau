@@ -17,6 +17,8 @@ function Game.new(load, options)
 	local CompanyOps = load:server("Core/CompanyOps")
 	local IncomeEngine = load:server("Core/IncomeEngine")
 	local Session = load:server("Core/Session")
+	local OfferBook = load:server("Core/OfferBook")
+	local TradeEngine = load:server("Core/TradeEngine")
 
 	local self = setmetatable({}, Game)
 	self.load = load
@@ -36,6 +38,20 @@ function Game.new(load, options)
 	self.ledger = Ledger.new(touch)
 	self.ops = CompanyOps.new({ world = self.world, ledger = self.ledger, clock = self.clock, touch = touch })
 	self.engine = IncomeEngine.new({ world = self.world, ledger = self.ledger, touch = touch })
+	self.offers = OfferBook.new(self.clock)
+	self.fault = nil -- function(stage) para inyectar fallos en el motor de comercio
+	self.trade = TradeEngine.new({
+		world = self.world,
+		ledger = self.ledger,
+		offers = self.offers,
+		clock = self.clock,
+		touch = touch,
+		fault = function(stage)
+			if self.fault then
+				self.fault(stage)
+			end
+		end,
+	})
 	self.changes = {}
 	self.ledger:observe(function(change)
 		table.insert(self.changes, change)
@@ -46,6 +62,7 @@ end
 -- Añade un jugador con perfil simulado y su empresa inicial.
 function Game:addPlayer(userId, name, mutate)
 	local data = self.PlayerData.template(self.clock.unix())
+	data.stats.playSeconds = 10_000 -- cuenta con antigüedad suficiente para comerciar
 	if mutate then
 		mutate(data)
 	end

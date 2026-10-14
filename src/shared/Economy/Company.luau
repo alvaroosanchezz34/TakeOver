@@ -36,7 +36,7 @@ export type Company = {
 	unclaimed: { [string]: number }, -- dividendos pendientes de titulares desconectados
 	history: { HistoryEntry },
 	earned: number, -- ingresos brutos acumulados
-	incomeCarry: number, -- fracción de Cash aún no acreditada (no persistir como Cash)
+	carry: { [string]: number }, -- fracción de Cash aún no pagada a cada titular (0 <= x < 1)
 	createdAt: number,
 }
 
@@ -122,7 +122,7 @@ function Company.new(p: NewParams): Company
 		unclaimed = {},
 		history = {},
 		earned = 0,
-		incomeCarry = 0,
+		carry = {},
 		createdAt = p.now,
 	}
 end

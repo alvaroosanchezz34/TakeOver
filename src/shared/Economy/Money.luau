@@ -2,7 +2,7 @@
 --[[
 	Cash es SIEMPRE un entero en [0, MaxCash]. MaxCash (1e15) < 2^53, así que sumas y
 	restas son exactas en un double. Las fracciones de ingresos se acumulan aparte
-	(incomeCarry) y sólo se acredita la parte entera.
+	(`carry` por titular) y sólo se acredita la parte entera.
 ]]
 
 local Balance = require(script.Parent.Parent.Config.Balance)

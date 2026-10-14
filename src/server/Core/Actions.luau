@@ -22,7 +22,7 @@ local Views = require(script.Parent.Views)
 local Actions = {}
 
 local COMPANY_ID = V.string({ minLen = 3, maxLen = 40, pattern = "^[%w_:%-]+$" })
-local USER_ID = V.string({ minLen = 1, maxLen = 24, pattern = "^%d+$" })
+local USER_ID = V.string({ minLen = 1, maxLen = 24, pattern = "^%-?%d+$" })
 local ID = V.string({ minLen = 1, maxLen = 32, pattern = "^[%w_]+$" })
 local SMALL = V.int({ min = 1, max = 64 })
 

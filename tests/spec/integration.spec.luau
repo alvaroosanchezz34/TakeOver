@@ -702,4 +702,35 @@ return function(t, load)
 			t:expect(cl:session(1).data.cash):toBe(100)
 		end)
 	end)
+
+	t:describe("Pruebas locales de Studio (UserId negativo)", function()
+		t:test("jugadores con UserId negativo pueden ofertar, aceptar y aliarse", function()
+			local cl = newCluster()
+			local veteran = function(cash)
+				return function(d)
+					d.cash = cash
+					d.stats.playSeconds = 99999
+					d.stats.totalEarned = 50000
+					d.tutorial.done = true
+				end
+			end
+			cl:join(-1, "Player1", veteran(0))
+			cl:join(-2, "Player2", veteran(424242))
+			local company = cl:session(-1).data.companies["-1:1"]
+			t:expect(company ~= nil):toBe(true)
+			company.level, company.upgrades.shelves = 3, 10
+			local fair = cl.server.world:stakeValue(company, 500)
+			local made =
+				cl:call(-2, "MakeOffer", { companyId = "-1:1", sellerId = "-1", bps = 500, price = fair })
+			t:expect(made.ok):toBe(true)
+			local done = cl:call(
+				-1,
+				"RespondOffer",
+				{ offerId = made.data.offerId, action = "accept", confirm = true }
+			)
+			t:expect(done.ok):toBe(true)
+			local invite = cl:call(-1, "AllianceInvite", { targetId = "-2" })
+			t:expect(invite.ok):toBe(true)
+		end)
+	end)
 end

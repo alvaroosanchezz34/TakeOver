@@ -205,6 +205,9 @@ function PlayerData.repair(data: Data, now: number): { string }
 			if type(company.carry) ~= "table" then
 				company.carry = {}
 			end
+			if type(company.names) ~= "table" then
+				company.names = {}
+			end
 			for holder, frac in company.carry do
 				if type(frac) ~= "number" or frac ~= frac or frac < 0 or frac >= 2 then
 					company.carry[holder] = 0

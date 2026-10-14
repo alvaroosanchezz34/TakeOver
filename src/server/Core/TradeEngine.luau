@@ -118,6 +118,7 @@ local function addHolding(session: Session, company: any, bps: number, paid: num
 			bps = 0,
 			paid = 0,
 			founderId = company.founderId,
+			founderName = company.names and company.names[company.founderId] or "",
 			name = company.name,
 			sector = company.sector,
 			valueHint = 0,
@@ -292,6 +293,7 @@ type Snapshot = {
 	capHolders: { [string]: number },
 	capRev: number,
 	history: { any },
+	names: { [string]: string },
 	seq: any,
 	buyerHolding: any,
 	sellerHolding: any,
@@ -306,6 +308,7 @@ local function takeSnapshot(buyer: Session, seller: Session, company: any): Snap
 		capHolders = table.clone(company.cap.holders),
 		capRev = company.cap.rev,
 		history = Table.deepClone(company.history),
+		names = table.clone(company.names or {}),
 		seq = company.seq,
 		buyerHolding = snapshotHolding(buyer, company.id),
 		sellerHolding = snapshotHolding(seller, company.id),
@@ -325,6 +328,7 @@ function TradeEngine._rollback(
 	company.cap.holders = snap.capHolders
 	company.cap.rev = snap.capRev
 	company.history = snap.history
+	company.names = snap.names
 	company.seq = snap.seq
 	buyer.data.holdings[company.id] = snap.buyerHolding
 	seller.data.holdings[company.id] = snap.sellerHolding
@@ -365,6 +369,9 @@ function TradeEngine._apply(
 	end
 	self:_stage("afterTransfer")
 
+	company.names = company.names or {}
+	company.names[buyer.id] = buyer.name
+	company.names[seller.id] = seller.name
 	addHolding(buyer, company, bps, price)
 	removeHolding(seller, company.id, bps)
 	self:_stage("afterHoldings")

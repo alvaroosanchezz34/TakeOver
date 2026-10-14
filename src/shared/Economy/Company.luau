@@ -37,6 +37,7 @@ export type Company = {
 	history: { HistoryEntry },
 	earned: number, -- ingresos brutos acumulados
 	carry: { [string]: number }, -- fracción de Cash aún no pagada a cada titular (0 <= x < 1)
+	names: { [string]: string }, -- nombre visible de cada titular (para mostrarlos aunque estén desconectados)
 	createdAt: number,
 }
 
@@ -101,6 +102,7 @@ export type NewParams = {
 	nameParts: { number }?,
 	logo: { icon: number, color: number }?,
 	now: number,
+	founderName: string?,
 }
 
 function Company.new(p: NewParams): Company
@@ -109,6 +111,10 @@ function Company.new(p: NewParams): Company
 	local parts = p.nameParts or Company.defaultParts(p.sector, seed)
 	local name = Company.nameFromParts(p.sector, parts)
 	assert(name, "partes de nombre inválidas")
+	local names: { [string]: string } = {}
+	if p.founderName then
+		names[p.founderId] = p.founderName
+	end
 	return {
 		id = p.founderId .. ":" .. tostring(p.index),
 		sector = p.sector,
@@ -123,6 +129,7 @@ function Company.new(p: NewParams): Company
 		history = {},
 		earned = 0,
 		carry = {},
+		names = names,
 		createdAt = p.now,
 	}
 end

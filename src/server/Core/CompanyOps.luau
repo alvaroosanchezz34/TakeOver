@@ -75,6 +75,7 @@ function CompanyOps.ensureStarterCompany(self: CompanyOps, session: Session): an
 		index = 1,
 		sector = "commerce",
 		now = self._d.clock.unix(),
+		founderName = session.name,
 	})
 	data.counters.companiesFounded = 1
 	data.companies[company.id] = company
@@ -117,6 +118,7 @@ function CompanyOps.found(
 		nameParts = nameParts,
 		logo = logo,
 		now = self._d.clock.unix(),
+		founderName = session.name,
 	})
 	if not ok then
 		return Result.err("INTERNAL", { reason = tostring(company) })

@@ -32,7 +32,6 @@ return Table.deepFreeze({
 		AllianceRespond = { capacity = 5, refill = 1 },
 		AllianceLeave = { capacity = 2, refill = 0.2 },
 		ClaimDaily = { capacity = 2, refill = 0.1 },
-		TutorialEvent = { capacity = 6, refill = 1 },
 		SkipTutorial = { capacity = 2, refill = 0.2 },
 		GetLeaderboard = { capacity = 4, refill = 0.5 },
 		SetSetting = { capacity = 6, refill = 1 },

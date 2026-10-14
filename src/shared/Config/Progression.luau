@@ -7,7 +7,9 @@
 local Table = require(script.Parent.Parent.Util.Table)
 
 return Table.deepFreeze({
-	-- Pasos en orden. `event` es la acción real que lo completa.
+	-- Pasos en orden. `event` es la acción real que lo completa. TODOS los eventos los genera el
+	-- servidor al ejecutar la acción real (abrir el mercado, inspeccionar...): el cliente no
+	-- puede "avisar" de nada para avanzar el tutorial.
 	TutorialSteps = {
 		{ id = "buy_upgrade", event = "upgrade_bought" },
 		{ id = "see_income", event = "income_seen" }, -- avanza solo, tras ver subir los ingresos
@@ -15,9 +17,6 @@ return Table.deepFreeze({
 		{ id = "inspect_company", event = "company_inspected" },
 		{ id = "first_offer", event = "first_offer" },
 	},
-
-	-- Eventos que el CLIENTE puede comunicar (sólo hitos de interfaz sin valor económico).
-	ClientTutorialEvents = { "market_opened", "company_inspected" },
 
 	Achievements = {
 		{ id = "first_upgrade", titleKey = "ach.first_upgrade" },

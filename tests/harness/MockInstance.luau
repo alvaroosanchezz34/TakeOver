@@ -191,8 +191,30 @@ local function udim(scale, offset)
 	return { Scale = scale or 0, Offset = offset or 0 }
 end
 
-local function udim2(xs, xo, ys, yo)
-	return { X = udim(xs, xo), Y = udim(ys, yo), Width = udim(xs, xo), Height = udim(ys, yo) }
+local udim2
+local udim2Meta = {
+	__add = function(a, b)
+		return udim2(
+			a.X.Scale + b.X.Scale,
+			a.X.Offset + b.X.Offset,
+			a.Y.Scale + b.Y.Scale,
+			a.Y.Offset + b.Y.Offset
+		)
+	end,
+	__sub = function(a, b)
+		return udim2(
+			a.X.Scale - b.X.Scale,
+			a.X.Offset - b.X.Offset,
+			a.Y.Scale - b.Y.Scale,
+			a.Y.Offset - b.Y.Offset
+		)
+	end,
+}
+function udim2(xs, xo, ys, yo)
+	return setmetatable(
+		{ X = udim(xs, xo), Y = udim(ys, yo), Width = udim(xs, xo), Height = udim(ys, yo) },
+		udim2Meta
+	)
 end
 
 local function enumItem(enumName, name, value)
@@ -585,6 +607,13 @@ end
 -- Eventos remotos / funciones remotas
 function methods.FireClient(self, player, ...)
 	table.insert(rawget(self, "_fired"), { player = player, args = table.pack(...) })
+	-- Si el destinatario es el cliente simulado, el mensaje llega a OnClientEvent.
+	if player == MockInstance.localPlayer then
+		local sigs = rawget(self, "_signals")
+		if sigs.OnClientEvent then
+			sigs.OnClientEvent:Fire(...)
+		end
+	end
 end
 
 function methods.FireAllClients(self, ...)
@@ -710,6 +739,9 @@ function MockInstance.player(userId, name)
 	player.UserId = userId
 	player.DisplayName = name
 	player.Character = nil
+	local gui = MockInstance.new("PlayerGui")
+	gui.Name = "PlayerGui"
+	gui.Parent = player
 	return player
 end
 
@@ -811,6 +843,9 @@ function MockInstance.services(options)
 	rawget(uis, "_props").KeyboardEnabled = options.touch ~= true
 	rawget(uis, "_props").MouseEnabled = options.touch ~= true
 	rawget(uis, "_props").GamepadEnabled = false
+	rawget(uis, "_props").GetFocusedTextBox = function()
+		return nil
+	end
 
 	local loc = service("LocalizationService")
 	rawget(loc, "_props").RobloxLocaleId = options.locale or "en_us"

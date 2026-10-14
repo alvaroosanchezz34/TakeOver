@@ -79,6 +79,7 @@ function Views.companyBrief(world: World.World, company: any): { [string]: any }
 		level = company.level or 5,
 		visualTier = if isNpc then 6 else Company.visualTier(company),
 		logo = company.logo or { icon = 1, color = 1 },
+		nameParts = company.nameParts,
 		income = round2(income.total),
 		valuation = world:valuationOf(company),
 		hype = hype,

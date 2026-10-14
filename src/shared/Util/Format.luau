@@ -112,6 +112,15 @@ function Format.rate(perSecond: number, locale: Locale?): string
 	return base .. "/s"
 end
 
+-- Decimal corto sin moneda (hasta 2 decimales, sin ceros finales): 0.7 -> "0,7", 12 -> "12".
+function Format.decimal(n: number, locale: Locale?): string
+	if not isFinite(n) then
+		n = 0
+	end
+	local text = trim(string.format("%.2f", n))
+	return (string.gsub(text, "%.", separator(locale)))
+end
+
 -- Número genérico sin moneda ("1,25 K").
 function Format.count(n: number, locale: Locale?): string
 	if not isFinite(n) then

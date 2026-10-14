@@ -146,6 +146,8 @@ function Loader.new(options)
 	self._baseEnv = baseEnv
 	-- Los specs se cargan con el require de Lune (sin este entorno): exponemos lo útil.
 	self.Random = baseEnv.Random
+	self.Enum = baseEnv.Enum
+	self.Vector2 = baseEnv.Vector2
 	return self
 end
 

@@ -219,9 +219,10 @@ function CompanyOps.levelUp(self: CompanyOps, session: Session, companyId: strin
 	return Result.ok({ cost = cost, newLevel = company.level, income = self._d.world:incomeOf(company).total })
 end
 
-function CompanyOps._styleCooldown(self: CompanyOps, company: any): Result.Result<nil>
+-- Enfriamiento independiente para el nombre y para el logotipo (guardar ambos seguidos es válido).
+function CompanyOps._styleCooldown(self: CompanyOps, company: any, field: string): Result.Result<nil>
 	local now = self._d.clock.unix()
-	local last = company.styleAt or 0
+	local last = company[field] or 0
 	if now - last < STYLE_COOLDOWN_SECONDS then
 		return Result.err("COOLDOWN", { seconds = STYLE_COOLDOWN_SECONDS - (now - last) })
 	end
@@ -243,13 +244,13 @@ function CompanyOps.rename(
 	if name == nil then
 		return Result.err("INVALID_NAME")
 	end
-	local cooldown = self:_styleCooldown(company)
+	local cooldown = self:_styleCooldown(company, "nameAt")
 	if not cooldown.ok then
 		return cooldown :: any
 	end
 	company.nameParts = parts
 	company.name = name
-	company.styleAt = self._d.clock.unix()
+	company.nameAt = self._d.clock.unix()
 	self:_log(company, { kind = "rename", a = session.id, note = name })
 	self:_touchCompany(company)
 	return Result.ok(name)
@@ -270,12 +271,12 @@ function CompanyOps.setLogo(
 	if not Company.isValidLogo(icon, color) then
 		return Result.err("INVALID_LOGO")
 	end
-	local cooldown = self:_styleCooldown(company)
+	local cooldown = self:_styleCooldown(company, "logoAt")
 	if not cooldown.ok then
 		return cooldown
 	end
 	company.logo = { icon = icon, color = color }
-	company.styleAt = self._d.clock.unix()
+	company.logoAt = self._d.clock.unix()
 	self:_log(company, { kind = "style", a = session.id })
 	self:_touchCompany(company)
 	return Result.ok(nil)
